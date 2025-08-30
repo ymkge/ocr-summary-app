@@ -1,4 +1,5 @@
 # 画像OCR & 要約アプリ
+<img width="955" height="938" alt="スクリーンショット 2025-08-30 20 33 47" src="https://github.com/user-attachments/assets/f840afb3-8c2f-4d46-ad0f-faeb0f635a3d" />
 
 このアプリケーションは、アップロードされた画像（JPG/PNG）からGoogle Cloud Vision APIを利用してテキストを抽出し、Gemini 1.5 Flash を使用して日本語で要約を生成します。
 モダンでインタラクティブなUIデザインを採用し、快適なユーザー体験を提供します。
