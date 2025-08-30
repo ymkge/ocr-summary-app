@@ -48,12 +48,12 @@ cp .env.local.example .env.local
 
 次に、`.env.local` ファイルを開き、各APIキーを設定します。
 
-- `GOOGLE_API_KEY`: **(必須)** [Google AI Studio](https://aistudio.google.com/app/apikey) で取得したGemini APIキー。
+- `GOOGLE_API_KEY`: **(必須)** [Google AI Studio](https://aistudio.google.com/app/apikey) で取得したGemini APIキー。このキーに紐づくプロジェクトで **Generative Language API** を有効にする必要があります。
 - `GOOGLE_CLOUD_PROJECT`: **(必須)** お使いのGoogle CloudプロジェクトID。
 - `GCP_SA_KEY_JSON`: **(必須)** 
-  1. Google Cloudコンソールでサービスアカウントを作成し、「Cloud Vision API ユーザー」ロールを付与します。
+  1. Google Cloudコンソールでサービスアカウントを作成し、「**Cloud Vision API ユーザー**」ロールを付与します。
   2. そのサービスアカウントのJSONキーを作成・ダウンロードします。
-  3. ダウンロードしたJSONファイルの中身全体を、一行の文字列としてコピーし、一重引用符（`'`）で囲んで貼り付けます。（変換方法の詳細はトラブルシューティングの項を参照）
+  3. ダウンロードしたJSONファイルの中身全体を、一行の文字列としてコピーし、一重引用符（`'`）で囲んで貼り付けます。
 
 ### 4. 開発サーバーの起動
 
@@ -76,7 +76,7 @@ npm run dev
 
 ## ⚠️ 制限事項・既知の問題
 
-- **Google Cloud Vision OCR**: 利用にはGoogle Cloudプロジェクトとサービスアカウントの設定、および関連APIの有効化が必要です。
+- **Google Cloud設定**: Google Cloud Vision APIの利用には、GCPプロジェクト、サービスアカウント、請求先アカウントの設定、および関連API（Cloud Vision API, Generative Language API）の有効化が必要です。
 - **レート制限**: IPアドレスごとに1分あたり10回のリクエスト制限が簡易的に実装されています。
 
 ## 🖼️ サンプル画像
