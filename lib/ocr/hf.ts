@@ -1,5 +1,5 @@
 const HF_API_TOKEN = process.env.HF_API_TOKEN;
-const OCR_MODEL_ID = 'microsoft/trocr-base-printed'; // process.env.OCR_MODEL_ID || 'microsoft/trocr-base-printed';
+const OCR_MODEL_ID = process.env.OCR_MODEL_ID || 'microsoft/trocr-base-printed';
 const API_URL = `https://api-inference.huggingface.co/models/${OCR_MODEL_ID}`;
 
 interface HfResponse {

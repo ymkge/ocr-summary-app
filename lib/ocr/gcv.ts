@@ -29,7 +29,6 @@ export async function runGcvOcr(imageBuffer: Buffer): Promise<string> {
         image: {
             content: imageBuffer.toString('base64'),
         },
-        features: [{ type: 'TEXT_DETECTION' as const }],
     };
 
     try {
