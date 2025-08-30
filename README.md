@@ -1,17 +1,18 @@
 # 画像OCR & 要約アプリ
 
 このアプリケーションは、アップロードされた画像（JPG/PNG）からGoogle Cloud Vision APIを利用してテキストを抽出し、Gemini 1.5 Flash を使用して日本語で要約を生成します。
+モダンでインタラクティブなUIデザインを採用し、快適なユーザー体験を提供します。
 
 ![App Screenshot](https://i.imgur.com/example.png) <!-- 後で実際のスクリーンショットに置き換える -->
 
 ## ✨ 主な機能
 
-- **画像アップロード**: 10MBまでのJPG/PNG画像をアップロードできます。
+- **インタラクティブなUI**: ドラッグ＆ドロップに対応したファイルアップロードエリアや、スムーズなアニメーションで、直感的な操作が可能です。
 - **高精度OCR**: Google Cloud Vision APIによる高精度な多言語テキスト抽出。
 - **AI要約**: 抽出されたテキストを Gemini 1.5 Flash が3〜5行の箇条書きで日本語に要約します。
-- **結果表示**: 抽出された原文（折りたたみ可能）と、AIによる要約を並べて表示します。
+- **クリップボードへのコピー**: 抽出された原文と要約結果は、ワンクリックで簡単にコピーできます。
+- **モダンな通知機能**: 処理の成功やエラーは、画面上部に表示されるトースト通知によってフィードバックされます。
 - **パフォーマンス計測**: OCR、要約、合計処理時間をミリ秒単位で表示します。
-- **エラーハンドリング**: ファイルサイズ超過、非対応形式、APIエラーなどを適切に処理し、ユーザーにフィードバックします。
 
 ## 🛠️ 技術スタック
 
@@ -21,6 +22,9 @@
 - **OCR**: Google Cloud Vision API
 - **要約**: Google Gemini 1.5 Flash API
 - **スタイリング**: Tailwind CSS
+- **アニメーション**: Framer Motion
+- **通知**: React Hot Toast
+- **アイコン**: React Icons
 - **デプロイ**: Vercel
 
 ## 🚀 セットアップと起動
@@ -63,25 +67,20 @@ npm run dev
 
 ブラウザで `http://localhost:3000` を開きます。
 
-## ☁️ デプロイ
+## 🏗️ コード構成
 
-このアプリはVercelに簡単にデプロイできます。
+UIコンポーネントは `components` ディレクトリに分割されており、それぞれが特定の役割を持っています。
 
-1. プロジェクトをGitHubリポジトリにプッシュします。
-2. Vercelにログインし、「Add New... > Project」からリポジトリをインポートします。
-3. **Environment Variables** の設定画面で、`.env.local` と同じ内容の環境変数を設定します。
-4. 「Deploy」ボタンをクリックします。
+- `Header.tsx`: ページ上部のヘッダー
+- `FileUpload.tsx`: ファイルアップロードエリア
+- `LoadingSpinner.tsx`: 処理中のスピナー
+- `ResultCard.tsx`: OCR結果表示用カード
+- `SummaryCard.tsx`: 要約結果表示用カード
+- `ToastProvider.tsx`: 通知機能のプロバイダ
 
-`vercel.json` により、画像アップロードを処理するAPIルートでNode.jsランタイムが使用されるように設定済みです。
+メインのページロジックは `pages/index.tsx` にあり、これらのコンポーネントを組み合わせてUIを構築しています。
 
 ## ⚠️ 制限事項・既知の問題
 
 - **Google Cloud設定**: Google Cloud Vision APIの利用には、GCPプロジェクト、サービスアカウント、請求先アカウントの設定、および関連API（Cloud Vision API, Generative Language API）の有効化が必要です。
 - **レート制限**: IPアドレスごとに1分あたり10回のリクエスト制限が簡易的に実装されています。
-
-## 🖼️ サンプル画像
-
-以下のリンク先の画像をダウンロードして試すことができます。
-
-- [英語の印刷されたテキスト](https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Sample_of_English_text.png/800px-Sample_of_English_text.png)
-- [日本語の印刷されたテキスト](https://upload.wikimedia.org/wikipedia/org/a/a8/NatsumeSoseki-Kokoro-Sample.jpg)
