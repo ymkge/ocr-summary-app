@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "pages/api/ocr.ts": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
