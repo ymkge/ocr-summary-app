@@ -1,11 +1,8 @@
 import { useState, FormEvent } from 'react';
 
-type OcrProvider = 'hf' | 'gcv';
-
 interface ApiResponse {
   extractedText: string;
   summary: string;
-  provider: OcrProvider;
   timings: {
     total: number;
     ocr: number;
@@ -19,7 +16,6 @@ interface ApiResponse {
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
-  const [provider, setProvider] = useState<OcrProvider>('hf');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ApiResponse | null>(null);
@@ -63,15 +59,12 @@ export default function Home() {
 
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('provider', provider);
 
     try {
-      const startTime = Date.now();
       const response = await fetch('/api/ocr', {
         method: 'POST',
         body: formData,
       });
-      const duration = Date.now() - startTime;
 
       if (!response.ok) {
         const errData = await response.json();
@@ -116,18 +109,6 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center justify-center space-x-8">
-            <span className="text-sm font-medium text-gray-700">OCRプロバイダ:</span>
-            <div className="flex items-center">
-              <input id="hf" name="provider" type="radio" value="hf" checked={provider === 'hf'} onChange={() => setProvider('hf')} className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300" />
-              <label htmlFor="hf" className="ml-2 block text-sm text-gray-900">HuggingFace</label>
-            </div>
-            <div className="flex items-center">
-              <input id="gcv" name="provider" type="radio" value="gcv" checked={provider === 'gcv'} onChange={() => setProvider('gcv')} className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300" />
-              <label htmlFor="gcv" className="ml-2 block text-sm text-gray-900">Google Cloud Vision</label>
-            </div>
-          </div>
-
           <div>
             <button type="submit" disabled={loading || !file} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed">
               {loading ? '処理中...' : '実行'}
@@ -155,7 +136,6 @@ export default function Home() {
               <h2 className="text-xl font-semibold text-gray-800 mb-2">実行結果</h2>
               <div className="text-sm text-gray-600 space-y-1">
                 <p><strong>合計処理時間:</strong> {(result.timings.total / 1000).toFixed(2)}秒</p>
-                <p><strong>OCRプロバイダ:</strong> Google Cloud Vision</p>
                 <p><strong>ファイル名:</strong> {result.meta.fileName}</p>
               </div>
             </div>

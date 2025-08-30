@@ -1,9 +1,7 @@
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { promises as fs } from 'fs';
-import { formidable, File } from 'formidable';
+import { formidable } from 'formidable';
 import { LRUCache } from 'lru-cache';
-import { runHfOcr } from '@/lib/ocr/hf';
 import { runGcvOcr } from '@/lib/ocr/gcv';
 import { summarizeWithGemini } from '@/lib/summarize/gemini';
 
@@ -13,10 +11,7 @@ export const config = {
   },
 };
 
-type OcrProvider = 'hf' | 'gcv';
-
 const MAX_UPLOAD_MB = parseInt(process.env.MAX_UPLOAD_MB || '10', 10);
-const DEFAULT_OCR_PROVIDER: OcrProvider = (process.env.DEFAULT_OCR_PROVIDER as OcrProvider) || 'hf';
 
 // --- Rate Limiting ---
 const rateLimit = new LRUCache<string, number>({
@@ -48,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const startTime = Date.now();
   
   try {
-    const { files, fields } = await parseForm(req);
+    const { files } = await parseForm(req);
     const imageFile = files.image?.[0];
     
     if (!imageFile) {
@@ -59,17 +54,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: `File size exceeds ${MAX_UPLOAD_MB}MB limit.` });
     }
 
-    const provider: OcrProvider = fields.provider?.[0] === 'gcv' ? 'gcv' : DEFAULT_OCR_PROVIDER;
     const imageBuffer = await fs.readFile(imageFile.filepath);
 
     // --- OCR Execution ---
     const ocrStartTime = Date.now();
-    let extractedText = '';
-    if (provider === 'gcv') {
-      extractedText = await runGcvOcr(imageBuffer);
-    } else {
-      extractedText = await runHfOcr(imageBuffer);
-    }
+    const extractedText = await runGcvOcr(imageBuffer);
     const ocrEndTime = Date.now();
 
     // --- Summarization ---
@@ -82,7 +71,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json({
       extractedText,
       summary,
-      provider: 'gcv',
       timings: {
         total: totalTime,
         ocr: ocrEndTime - ocrStartTime,
@@ -91,13 +79,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       meta: {
         fileName: imageFile.originalFilename,
         fileSize: imageFile.size,
-        model: provider === 'hf' ? process.env.OCR_MODEL_ID : 'Google Cloud Vision',
+        model: 'Google Cloud Vision',
       },
     });
 
   } catch (e: any) {
     console.error('[API Error]', e);
-    // Avoid leaking internal error details to the client
     const userMessage = e.message.includes('API') || e.message.includes('configured') 
       ? 'An external service failed. Please check the server configuration.'
       : 'An unexpected error occurred.';
