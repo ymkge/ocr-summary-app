@@ -155,7 +155,7 @@ export default function Home() {
               <h2 className="text-xl font-semibold text-gray-800 mb-2">実行結果</h2>
               <div className="text-sm text-gray-600 space-y-1">
                 <p><strong>合計処理時間:</strong> {(result.timings.total / 1000).toFixed(2)}秒</p>
-                <p><strong>OCRプロバイダ:</strong> {result.provider === 'hf' ? 'HuggingFace' : 'Google Cloud Vision'}</p>
+                <p><strong>OCRプロバイダ:</strong> Google Cloud Vision</p>
                 <p><strong>ファイル名:</strong> {result.meta.fileName}</p>
               </div>
             </div>
