@@ -1,3 +1,4 @@
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { promises as fs } from 'fs';
 import { formidable } from 'formidable';
@@ -13,7 +14,7 @@ export const config = {
 
 const MAX_UPLOAD_MB = parseInt(process.env.MAX_UPLOAD_MB || '10', 10);
 
-// --- Rate Limiting ---
+// Rate limiting configuration
 const rateLimit = new LRUCache<string, number>({
   max: 500,
   ttl: 1000 * 60, // 1 minute
@@ -26,7 +27,7 @@ const getIp = (req: NextApiRequest) =>
   req.headers['x-real-ip'] as string || 
   req.socket.remoteAddress || 'unknown';
 
-// --- Main Handler ---
+// Main API handler
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -43,8 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const startTime = Date.now();
   
   try {
-    const { files } = await parseForm(req);
-    const imageFile = files.image?.[0];
+    const imageFile = await parseForm(req);
     
     if (!imageFile) {
       return res.status(400).json({ error: 'No image file uploaded.' });
@@ -56,17 +56,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const imageBuffer = await fs.readFile(imageFile.filepath);
 
-    // --- OCR Execution ---
+    // OCR Execution
     const ocrStartTime = Date.now();
     const extractedText = await runGcvOcr(imageBuffer);
     const ocrEndTime = Date.now();
 
-    // --- Summarization ---
+    // Summarization
     const summaryStartTime = Date.now();
     const summary = await summarizeWithGemini(extractedText);
     const summaryEndTime = Date.now();
 
-    // --- Response ---
+    // Final Response
     const totalTime = Date.now() - startTime;
     res.status(200).json({
       extractedText,
@@ -79,7 +79,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       meta: {
         fileName: imageFile.originalFilename,
         fileSize: imageFile.size,
-        model: 'Google Cloud Vision',
       },
     });
 
@@ -92,8 +91,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
-// --- Form Parsing Utility ---
-async function parseForm(req: NextApiRequest): Promise<{ files: formidable.Files; fields: formidable.Fields }> {
+// Form parsing utility, simplified to only return the file
+async function parseForm(req: NextApiRequest): Promise<formidable.File | null> {
   const form = formidable({
     maxFileSize: MAX_UPLOAD_MB * 1024 * 1024,
     filter: ({ mimetype }) => mimetype?.startsWith('image/') || false,
@@ -103,9 +102,9 @@ async function parseForm(req: NextApiRequest): Promise<{ files: formidable.Files
     form.parse(req, (err, fields, files) => {
       if (err) {
         reject(err);
-      } else {
-        resolve({ files, fields });
       }
+      const imageFile = files.image?.[0];
+      resolve(imageFile || null);
     });
   });
 }

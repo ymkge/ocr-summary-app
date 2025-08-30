@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react';
 
+// Updated interface to match the refactored API response
 interface ApiResponse {
   extractedText: string;
   summary: string;
